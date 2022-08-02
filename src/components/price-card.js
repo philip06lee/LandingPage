@@ -41,6 +41,7 @@ export default function PriceCard({
                className="free__trial"
                aria-label={anotherOption}
                sx={{ color: 'black'}}
+               
               >
                 {anotherOption}
               </Button>

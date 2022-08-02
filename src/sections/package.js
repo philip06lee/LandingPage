@@ -8,6 +8,15 @@ import ButtonGroup from 'components/button-group';
 import SectionHeader from 'components/section-header';
 import { IoIosCheckmarkCircle, IoIosCloseCircle } from 'react-icons/io';
 
+import { useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { useRouter } from 'next/router';
+
+
+loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+
+
+
 const packages = {
   monthly: [
     {
@@ -248,7 +257,8 @@ export default function Package() {
 
   const handlePricingPlan = (plan) => {
     if(plan === 'annual') {
-      setState({ active: 'annual', pricingPlan: annual })
+      setState({ active: 'annual', pricingPlan: annual });
+            
     } else {
       setState({ active: 'monthly', pricingPlan: monthly })
     }
@@ -277,7 +287,33 @@ export default function Package() {
     sliderClass: '',
   };
 
+
+  const router = useRouter();
+	const { success, canceled } = router.query;
+
+	useEffect(() => {
+		if (success !== undefined || canceled !== undefined) {
+			if (success) {
+				console.log(
+					'Order placed! You will receive an email confirmation.'
+				);
+			}
+
+			if (canceled) {
+				console.log(
+					'Order canceled -- continue to shop around and checkout when you’re ready.'
+				);
+			}
+		}
+	}, [success, canceled]);
+
+
+
+
   return (
+  
+  <form action='/api/checkout_sessions' method='POST'>
+  
   <section id="pricing" sx={{ varint: 'section.pricing'}}>
     <Container>
       <SectionHeader
@@ -290,18 +326,27 @@ export default function Package() {
                 className={ state.active === 'monthly' ? 'active' : ''}
                 type="button"
                 aria-label="Monthly"
-                onClick={() => handlePricingPlan('monthly')}
+                // onClick={() => handlePricingPlan('monthly')}
+
+                onClick={(() => {
+
+                  handlePricingPlan('monthly')}
+                )}                  
               >
                 Monthly Plan
                 </button>
+                
                 <button
                 className={ state.active === 'annual' ? 'active' : ''}
                 type="button"
                 aria-label="Annual"
-                onClick={() => handlePricingPlan('annual')}
+
+                onClick={() => handlePricingPlan('annual')}             
+                                     
+                                              
                 >
-                  Annual Plan
-                </button>
+                Annual Plan
+                </button> 
             </Box>
           </Flex>
           <Box sx={styles.pricingWrapper} className="pricing__wrapper">
@@ -315,8 +360,14 @@ export default function Package() {
           </Box>
        </Container>
     </section>
-  );
-}
+  )
+  </form>
+  )
+  }
+
+
+
+
 
 const fadeIn = keyframes`
   from {
